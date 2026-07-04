@@ -70,7 +70,7 @@
     letter-spacing: 0.01em;
   }
 
-  /* The single focal element (Section 3) */
+  /* The focal element outside the daytime window */
   #bar {
     width: min(80vw, 880px);
     height: clamp(64px, 18vmin, 150px);
@@ -87,6 +87,16 @@
     transition: width 0.6s ease, background-color 0.6s ease;
   }
 
+  /* Daytime family illustration — replaces the bar 7:30am–4:15pm */
+  #family {
+    display: none;
+    width: min(82vw, 720px);
+    max-height: 55vh;
+    height: auto;
+  }
+  body[data-phase="family"] #bar    { display: none; }
+  body[data-phase="family"] #family { display: block; }
+
   #countdown { text-align: center; }
 
   #remaining {
@@ -99,20 +109,136 @@
     margin-top: 0.25em;
     font-size: clamp(1rem, 3vmin, 1.5rem);
     color: var(--ink-soft);
+    min-height: 1.4em;
   }
 
-  /* Once GREEN the countdown is not shown; visibility (not display) keeps the
-     bar from shifting position at the 7:00 transition. */
-  body.green #countdown { visibility: hidden; }
+  /* No countdown while GREEN or during the daytime illustration; visibility
+     (not display) keeps the bar/illustration from shifting position. */
+  body[data-phase="green"]  #countdown,
+  body[data-phase="family"] #countdown { visibility: hidden; }
 </style>
 </head>
 <body>
 <main>
   <div id="clock"></div>
+
   <div id="bar"><div id="fill"></div></div>
+
+  <!-- Family of four playing ball — flat inline SVG, no external assets -->
+  <svg id="family" viewBox="0 0 800 420" aria-hidden="true">
+    <!-- sun -->
+    <g stroke="#FFD95C" stroke-width="8" stroke-linecap="round">
+      <line x1="734" y1="78"  x2="750" y2="78"/>
+      <line x1="690" y1="34"  x2="690" y2="18"/>
+      <line x1="646" y1="78"  x2="630" y2="78"/>
+      <line x1="721" y1="47"  x2="732" y2="36"/>
+      <line x1="659" y1="47"  x2="648" y2="36"/>
+      <line x1="659" y1="109" x2="648" y2="120"/>
+      <line x1="721" y1="109" x2="732" y2="120"/>
+      <line x1="690" y1="122" x2="690" y2="138"/>
+    </g>
+    <circle cx="690" cy="78" r="34" fill="#FFD95C"/>
+
+    <!-- cloud -->
+    <g fill="#FFFFFF" opacity="0.9">
+      <ellipse cx="130" cy="72" rx="38" ry="20"/>
+      <ellipse cx="165" cy="64" rx="30" ry="17"/>
+      <ellipse cx="100" cy="64" rx="24" ry="14"/>
+    </g>
+
+    <!-- ground -->
+    <rect x="60" y="352" width="680" height="24" rx="12" fill="#D8E8B0"/>
+    <g>
+      <line x1="150" y1="352" x2="150" y2="338" stroke="#9DBF6E" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="150" cy="334" r="6" fill="#F2A0B5"/>
+      <line x1="330" y1="352" x2="330" y2="340" stroke="#9DBF6E" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="330" cy="336" r="5" fill="#FFFFFF"/>
+    </g>
+
+    <!-- ball with motion arc -->
+    <path d="M 345 196 Q 395 174 445 196" stroke="#E0D2AE" stroke-width="5" fill="none"
+          stroke-linecap="round" stroke-dasharray="2 12"/>
+    <circle cx="395" cy="150" r="24" fill="#F25C54"/>
+    <ellipse cx="404" cy="141" rx="7" ry="5" fill="#FFFFFF" opacity="0.55"/>
+
+    <!-- parent 1: reaching up toward the ball -->
+    <g>
+      <path d="M 240 215 Q 285 195 318 172" stroke="#2A9D8F" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <circle cx="322" cy="170" r="8" fill="#F2B58A"/>
+      <path d="M 210 215 Q 196 240 200 262" stroke="#2A9D8F" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <circle cx="200" cy="264" r="8" fill="#F2B58A"/>
+      <rect x="203" y="200" width="44" height="90" rx="20" fill="#2A9D8F"/>
+      <path d="M 215 284 L 213 344" stroke="#3D5A80" stroke-width="16" fill="none" stroke-linecap="round"/>
+      <path d="M 235 284 L 237 344" stroke="#3D5A80" stroke-width="16" fill="none" stroke-linecap="round"/>
+      <ellipse cx="211" cy="350" rx="12" ry="7" fill="#4A3728"/>
+      <ellipse cx="239" cy="350" rx="12" ry="7" fill="#4A3728"/>
+      <circle cx="225" cy="176" r="24" fill="#F2B58A"/>
+      <path d="M 201 176 a 24 24 0 0 1 48 0 z" fill="#5B4232"/>
+      <circle cx="218" cy="182" r="2.5" fill="#4A3728"/>
+      <circle cx="232" cy="182" r="2.5" fill="#4A3728"/>
+      <path d="M 218 190 Q 225 195 232 190" stroke="#4A3728" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- child 1: jumping for the ball -->
+    <g>
+      <ellipse cx="470" cy="358" rx="30" ry="6" fill="#E4D9B8" opacity="0.7"/>
+      <path d="M 458 212 Q 442 192 432 174" stroke="#E76F51" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <circle cx="430" cy="172" r="6.5" fill="#F2B58A"/>
+      <path d="M 482 212 Q 498 190 504 172" stroke="#E76F51" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <circle cx="505" cy="170" r="6.5" fill="#F2B58A"/>
+      <rect x="452" y="200" width="36" height="58" rx="17" fill="#E76F51"/>
+      <path d="M 462 252 Q 458 275 448 288" stroke="#5A6C8C" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <path d="M 478 252 Q 484 275 494 288" stroke="#5A6C8C" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <ellipse cx="446" cy="292" rx="9" ry="6" fill="#4A3728"/>
+      <ellipse cx="496" cy="292" rx="9" ry="6" fill="#4A3728"/>
+      <circle cx="470" cy="182" r="18" fill="#F2B58A"/>
+      <path d="M 452 182 a 18 18 0 0 1 36 0 z" fill="#8C5A33"/>
+      <circle cx="464" cy="186" r="2" fill="#4A3728"/>
+      <circle cx="476" cy="186" r="2" fill="#4A3728"/>
+      <path d="M 464 192 Q 470 196 476 192" stroke="#4A3728" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- parent 2: arms open, ready to catch -->
+    <g>
+      <path d="M 575 228 Q 540 210 514 197" stroke="#7D5BA6" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <circle cx="511" cy="195" r="8" fill="#F2B58A"/>
+      <path d="M 604 228 Q 625 245 632 264" stroke="#7D5BA6" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <circle cx="633" cy="266" r="8" fill="#F2B58A"/>
+      <rect x="569" y="212" width="42" height="80" rx="20" fill="#7D5BA6"/>
+      <path d="M 580 288 L 576 344" stroke="#4F4257" stroke-width="15" fill="none" stroke-linecap="round"/>
+      <path d="M 600 288 L 606 344" stroke="#4F4257" stroke-width="15" fill="none" stroke-linecap="round"/>
+      <ellipse cx="573" cy="350" rx="11" ry="7" fill="#4A3728"/>
+      <ellipse cx="609" cy="350" rx="11" ry="7" fill="#4A3728"/>
+      <circle cx="590" cy="190" r="23" fill="#F2B58A"/>
+      <path d="M 567 190 a 23 23 0 0 1 46 0 z" fill="#3E2C22"/>
+      <circle cx="612" cy="178" r="7" fill="#3E2C22"/>
+      <circle cx="583" cy="195" r="2.5" fill="#4A3728"/>
+      <circle cx="597" cy="195" r="2.5" fill="#4A3728"/>
+      <path d="M 583 203 Q 590 208 597 203" stroke="#4A3728" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- child 2: running to join in -->
+    <g>
+      <path d="M 678 240 Q 660 250 648 258" stroke="#E9C46A" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <circle cx="646" cy="259" r="6" fill="#F2B58A"/>
+      <path d="M 702 240 Q 714 252 718 262" stroke="#E9C46A" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <circle cx="719" cy="263" r="6" fill="#F2B58A"/>
+      <rect x="674" y="230" width="32" height="52" rx="15" fill="#E9C46A"/>
+      <path d="M 684 278 Q 678 316 668 340" stroke="#5A6C8C" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <path d="M 696 278 Q 702 312 712 340" stroke="#5A6C8C" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <ellipse cx="665" cy="344" rx="8" ry="5" fill="#4A3728"/>
+      <ellipse cx="715" cy="344" rx="8" ry="5" fill="#4A3728"/>
+      <circle cx="690" cy="214" r="17" fill="#F2B58A"/>
+      <path d="M 673 214 a 17 17 0 0 1 34 0 z" fill="#4A3728"/>
+      <circle cx="684" cy="218" r="2" fill="#4A3728"/>
+      <circle cx="696" cy="218" r="2" fill="#4A3728"/>
+      <path d="M 684 224 Q 690 228 696 224" stroke="#4A3728" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+  </svg>
+
   <div id="countdown">
     <div id="remaining"></div>
-    <div id="until">until 7:00 AM</div>
+    <div id="until"></div>
   </div>
 </main>
 
@@ -120,61 +246,93 @@
 (function () {
   "use strict";
 
-  // Schedule boundaries in minutes since midnight (Section 2). Hardcoded by
-  // design — change them by editing here and pushing to main (Section 7.5).
-  var RED_FILL_START = 3 * 60; // 03:00 — bar begins filling (clamped to 0% before)
-  var YELLOW_START   = 6 * 60; // 06:00 — RED becomes YELLOW
-  var GREEN_START    = 7 * 60; // 07:00 — YELLOW becomes GREEN, final until midnight
+  // Schedule boundaries in minutes since midnight. Hardcoded by design —
+  // change them by editing here and pushing to main.
+  var RED_FILL_START = 3 * 60;        // 03:00 — bar begins filling (clamped to 0% before)
+  var YELLOW_START   = 6 * 60;        // 06:00 — RED becomes YELLOW
+  var GREEN_START    = 7 * 60;        // 07:00 — YELLOW becomes GREEN
+  var FAMILY_START   = 7 * 60 + 30;   // 07:30 — bar is replaced by the family illustration
+  var DRAIN_START    = 16 * 60 + 15;  // 16:15 — full BLUE bar appears and starts draining
+  var LOCK_TIME      = 17 * 60 + 15;  // 17:15 — bar empty; device Screen Time lock takes over
 
-  // Bright, fully-saturated traffic-light colors (Section 3 / Section 8)
-  var COLORS = { red: "#FF0000", yellow: "#FFCC00", green: "#00CC00" };
+  // Bright, fully-saturated signal colors
+  var COLORS = { red: "#FF0000", yellow: "#FFCC00", green: "#00CC00", blue: "#0080FF" };
 
   var fillEl      = document.getElementById("fill");
   var clockEl     = document.getElementById("clock");
   var remainingEl = document.getElementById("remaining");
+  var untilEl     = document.getElementById("until");
 
   function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
 
   function render() {
     var now = new Date();
-    // Seconds are folded in so the fill advances smoothly between ticks; the
-    // phase boundaries land on the same minute marks as the Section 2 pseudocode.
+    // Seconds are folded in so the fill moves smoothly between ticks; phase
+    // boundaries land on exactly the minute marks above.
     var mins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
 
-    var phase, fillPct;
+    var phase, color, fillPct;
+    var cdText = "", cdCaption = "";
+
     if (mins < YELLOW_START) {
       phase = "red";
+      color = COLORS.red;
       fillPct = clamp((mins - RED_FILL_START) / (YELLOW_START - RED_FILL_START), 0, 1);
+      cdText = formatHM(Math.ceil(GREEN_START - mins));
+      cdCaption = "until 7:00 AM";
     } else if (mins < GREEN_START) {
       phase = "yellow";
+      color = COLORS.yellow;
       fillPct = (mins - YELLOW_START) / (GREEN_START - YELLOW_START);
-    } else {
+      cdText = formatHM(Math.ceil(GREEN_START - mins));
+      cdCaption = "until 7:00 AM";
+    } else if (mins < FAMILY_START) {
       phase = "green";
+      color = COLORS.green;
       fillPct = 1;
+    } else if (mins < DRAIN_START) {
+      phase = "family";
+      color = COLORS.green; // bar hidden; keeps fill state sane
+      fillPct = 1;
+    } else if (mins < LOCK_TIME) {
+      // Blue bar drains from full at 4:15pm to empty at 5:15pm
+      phase = "blue";
+      color = COLORS.blue;
+      fillPct = 1 - (mins - DRAIN_START) / (LOCK_TIME - DRAIN_START);
+      cdText = Math.ceil(LOCK_TIME - mins) + "m"; // 60m … 1m
+      cdCaption = "until 5:15 PM";
+    } else {
+      // After the 5:15pm Screen Time lock: drained bar stays for the evening
+      phase = "locked";
+      color = COLORS.blue;
+      fillPct = 0;
+      cdText = "0m";
     }
 
+    document.body.setAttribute("data-phase", phase);
     fillEl.style.width = (fillPct * 100) + "%";
-    fillEl.style.backgroundColor = COLORS[phase];
+    fillEl.style.backgroundColor = color;
 
-    // Current time, 12-hour with AM/PM (Section 8 assumption)
+    // Current time, 12-hour with AM/PM
     var h = now.getHours();
     var m = now.getMinutes();
     var h12 = h % 12 === 0 ? 12 : h % 12;
     clockEl.textContent = h12 + ":" + (m < 10 ? "0" : "") + m + " " + (h < 12 ? "AM" : "PM");
 
-    // Countdown to 7:00 AM, hidden once GREEN. Rounded up so it never reads
-    // "0m" while still YELLOW.
-    document.body.classList.toggle("green", phase === "green");
-    if (phase !== "green") {
-      var minsLeft = Math.ceil(GREEN_START - mins);
-      var hLeft = Math.floor(minsLeft / 60);
-      var mLeft = minsLeft % 60;
-      remainingEl.textContent = hLeft > 0 ? hLeft + "h " + mLeft + "m" : mLeft + "m";
-    }
+    remainingEl.textContent = cdText;
+    untilEl.textContent = cdCaption;
+  }
+
+  // "1h 12m" above an hour, "23m" below; rounded up so it never shows 0
+  // while a countdown is still running.
+  function formatHM(minsLeft) {
+    var hLeft = Math.floor(minsLeft / 60);
+    var mLeft = minsLeft % 60;
+    return hLeft > 0 ? hLeft + "h " + mLeft + "m" : mLeft + "m";
   }
 
   render();
-  setInterval(render, 15000); // live refresh every 15s (Section 4)
+  setInterval(render, 15000); // live refresh every 15s
 
   // iOS suspends timers while the web app is backgrounded (e.g. during
   // Netflix); re-render the instant it comes back so it never shows stale info.
