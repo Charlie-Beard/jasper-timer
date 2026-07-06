@@ -47,6 +47,7 @@
     color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
     -webkit-text-size-adjust: 100%;
+    transition: background-color 0.6s ease;
   }
 
   main {
@@ -97,6 +98,19 @@
   body[data-phase="family"] #bar    { display: none; }
   body[data-phase="family"] #family { display: block; }
 
+  /* Bedtime illustration — replaces the bar once the 5:15pm lock takes over */
+  #bedtime {
+    display: none;
+    width: min(82vw, 720px);
+    max-height: 55vh;
+    height: auto;
+  }
+  body[data-phase="locked"] #bar     { display: none; }
+  body[data-phase="locked"] #bedtime { display: block; }
+
+  /* Calm twilight wash for the evening, once the day is done */
+  body[data-phase="locked"] { background: #C9CEEA; }
+
   #countdown { text-align: center; }
 
   #remaining {
@@ -115,7 +129,8 @@
   /* No countdown while GREEN or during the daytime illustration; visibility
      (not display) keeps the bar/illustration from shifting position. */
   body[data-phase="green"]  #countdown,
-  body[data-phase="family"] #countdown { visibility: hidden; }
+  body[data-phase="family"] #countdown,
+  body[data-phase="locked"] #countdown { visibility: hidden; }
 </style>
 </head>
 <body>
@@ -233,6 +248,66 @@
       <circle cx="684" cy="218" r="2" fill="#4A3728"/>
       <circle cx="696" cy="218" r="2" fill="#4A3728"/>
       <path d="M 684 224 Q 690 228 696 224" stroke="#4A3728" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+  </svg>
+
+  <!-- Sleeping blonde boy — flat inline SVG, matches the daytime scene's style -->
+  <svg id="bedtime" viewBox="0 0 800 420" aria-hidden="true">
+    <!-- moon -->
+    <circle cx="690" cy="80" r="34" fill="#F6E7A8"/>
+    <circle cx="678" cy="70" r="6"   fill="#EAD98F" opacity="0.7"/>
+    <circle cx="701" cy="90" r="4.5" fill="#EAD98F" opacity="0.7"/>
+    <circle cx="695" cy="66" r="3.5" fill="#EAD98F" opacity="0.7"/>
+
+    <!-- stars -->
+    <g fill="#F6E7A8">
+      <path d="M140 83 L142.5 87.5 147 90 142.5 92.5 140 97 137.5 92.5 133 90 137.5 87.5 Z"/>
+      <path d="M250 52 L252.2 55.8 256 58 252.2 60.2 250 64 247.8 60.2 244 58 247.8 55.8 Z"/>
+      <path d="M560 60 L562.2 63.8 566 66 562.2 68.2 560 72 557.8 68.2 554 66 557.8 63.8 Z"/>
+      <path d="M610 115 L611.8 118.2 615 120 611.8 121.8 610 125 608.2 121.8 605 120 608.2 118.2 Z"/>
+      <path d="M95 155 L96.8 158.2 100 160 96.8 161.8 95 165 93.2 161.8 90 160 93.2 158.2 Z"/>
+    </g>
+
+    <!-- floor shadow under the bed -->
+    <ellipse cx="390" cy="362" rx="270" ry="14" fill="#B7BEDF" opacity="0.55"/>
+
+    <!-- bed frame -->
+    <g>
+      <rect x="150" y="196" width="36" height="150" rx="14" fill="#C79A5B"/>
+      <rect x="596" y="214" width="36" height="132" rx="14" fill="#C79A5B"/>
+      <rect x="168" y="300" width="440" height="46" rx="12" fill="#B98F4E"/>
+      <rect x="180" y="344" width="16" height="26" rx="5" fill="#A57F42"/>
+      <rect x="584" y="344" width="16" height="26" rx="5" fill="#A57F42"/>
+    </g>
+
+    <!-- mattress / sheet -->
+    <rect x="175" y="250" width="430" height="58" rx="20" fill="#F7F3E8"/>
+
+    <!-- pillow -->
+    <ellipse cx="258" cy="262" rx="72" ry="34" fill="#FFFFFF"/>
+    <ellipse cx="258" cy="262" rx="72" ry="34" fill="none" stroke="#E9E2CE" stroke-width="2"/>
+
+    <!-- blanket over the body -->
+    <rect x="330" y="250" width="278" height="62" rx="20" fill="#8FA9D6"/>
+    <rect x="330" y="250" width="278" height="18" rx="9"  fill="#A9C0E4"/>
+
+    <!-- boy: head resting on the pillow, fast asleep -->
+    <g>
+      <circle cx="258" cy="236" r="40" fill="#F2B58A"/>
+      <path d="M 218 236 a 40 40 0 0 1 80 0 z" fill="#EFC75E"/>
+      <path d="M 258 196 q 10 -12 3 -22 q 12 7 7 20 z" fill="#EFC75E"/>
+      <ellipse cx="234" cy="254" rx="6" ry="4" fill="#F2A0B5" opacity="0.5"/>
+      <ellipse cx="282" cy="254" rx="6" ry="4" fill="#F2A0B5" opacity="0.5"/>
+      <path d="M 236 242 Q 244 249 252 242" stroke="#4A4438" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M 264 242 Q 272 249 280 242" stroke="#4A4438" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M 249 260 Q 258 266 267 260" stroke="#4A4438" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- drifting z's -->
+    <g fill="#6E7CA6" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif" font-style="italic" font-weight="700">
+      <text x="308" y="206" font-size="26" transform="rotate(-10 308 206)">z</text>
+      <text x="344" y="166" font-size="34" transform="rotate(-10 344 166)">z</text>
+      <text x="386" y="118" font-size="46" transform="rotate(-10 386 118)">z</text>
     </g>
   </svg>
 
