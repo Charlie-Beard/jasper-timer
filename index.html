@@ -333,6 +333,19 @@
   // Bright, fully-saturated signal colors
   var COLORS = { red: "#FF0000", yellow: "#FFCC00", green: "#00CC00", blue: "#0080FF" };
 
+  // Optional ?phase= override for previewing any phase's artwork without waiting
+  // for that time of day (e.g. ?phase=locked). Invisible in normal use — the
+  // live clock stays real; only the bar/illustration/countdown are forced.
+  var OVERRIDE = new URLSearchParams(location.search).get("phase");
+  var PREVIEW = {
+    red:    { color: COLORS.red,    fillPct: 0.5, cdText: "1h 30m", cdCaption: "until 7:00 AM" },
+    yellow: { color: COLORS.yellow, fillPct: 0.5, cdText: "30m",    cdCaption: "until 7:00 AM" },
+    green:  { color: COLORS.green,  fillPct: 1,   cdText: "",       cdCaption: "" },
+    family: { color: COLORS.green,  fillPct: 1,   cdText: "",       cdCaption: "" },
+    blue:   { color: COLORS.blue,   fillPct: 0.5, cdText: "30m",    cdCaption: "until 5:15 PM" },
+    locked: { color: COLORS.blue,   fillPct: 0,   cdText: "0m",     cdCaption: "" }
+  };
+
   var fillEl      = document.getElementById("fill");
   var clockEl     = document.getElementById("clock");
   var remainingEl = document.getElementById("remaining");
@@ -341,6 +354,7 @@
   function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
 
   function render() {
+   try {
     var now = new Date();
     // Seconds are folded in so the fill moves smoothly between ticks; phase
     // boundaries land on exactly the minute marks above.
@@ -384,6 +398,15 @@
       cdText = "0m";
     }
 
+    // Preview override: force the requested phase's look, keep the real clock.
+    if (OVERRIDE && PREVIEW.hasOwnProperty(OVERRIDE)) {
+      phase = OVERRIDE;
+      color = PREVIEW[OVERRIDE].color;
+      fillPct = PREVIEW[OVERRIDE].fillPct;
+      cdText = PREVIEW[OVERRIDE].cdText;
+      cdCaption = PREVIEW[OVERRIDE].cdCaption;
+    }
+
     document.body.setAttribute("data-phase", phase);
     fillEl.style.width = (fillPct * 100) + "%";
     fillEl.style.backgroundColor = color;
@@ -396,6 +419,10 @@
 
     remainingEl.textContent = cdText;
     untilEl.textContent = cdCaption;
+   } catch (e) {
+    // Safety net: this display must never freeze. Swallow any unexpected error
+    // so the last good frame stays on screen and the next tick can self-heal.
+   }
   }
 
   // "1h 12m" above an hour, "23m" below; rounded up so it never shows 0

@@ -17,44 +17,56 @@ The app has no persisted state and no daily "reset" step. Every phase is derived
 from the device's current local wall-clock time, recomputed continuously. The same
 schedule applies every day of the week — no weekday/weekend variation.
 
-| Time of day             | Phase  | Bar fill                                   |
-|--------------------------|--------|---------------------------------------------|
-| 00:00 – 05:59            | RED    | Proportional fill across a 03:00→06:00 window, clamped to 0% before 03:00 |
-| 06:00 – 06:59            | YELLOW | Proportional fill across the 06:00→07:00 window |
-| 07:00 – 23:59            | GREEN  | Full (100%), stays this way for the rest of the day |
+The boundaries below are hardcoded constants at the top of the script in `index.html`
+(`RED_FILL_START`, `YELLOW_START`, `GREEN_START`, `FAMILY_START`, `DRAIN_START`,
+`LOCK_TIME`). Changing the schedule means editing those and redeploying (Section 7).
+
+| Time of day     | Phase  | What's shown                                                        |
+|-----------------|--------|---------------------------------------------------------------------|
+| 00:00 – 05:59   | RED    | Red bar, proportional fill across 03:00→06:00, clamped to 0% before 03:00 |
+| 06:00 – 06:59   | YELLOW | Yellow bar, proportional fill across the 06:00→07:00 window          |
+| 07:00 – 07:29   | GREEN  | Full green bar — the "you can come out" signal                       |
+| 07:30 – 16:14   | FAMILY | Green state continues, shown as a daytime family illustration (bar hidden) |
+| 16:15 – 17:14   | BLUE   | Blue "wind-down" bar draining from full at 16:15 to empty at 17:15   |
+| 17:15 – 23:59   | LOCKED | Bedtime illustration (sleeping boy) on a calm twilight background    |
 
 Notes:
 - Anything before 06:00 — including the middle of the night (e.g. 2am) — is RED. There
   is no separate "night" state; before 03:00 is visually identical to the rest of RED,
   just with the bar empty (0%).
-- GREEN is a final state once reached: the bar stays full and green continuously until
-  it naturally becomes RED again after midnight.
-- Recommended pseudocode:
-  ```
-  minutesSinceMidnight = now.hours * 60 + now.minutes
-  if minutesSinceMidnight < 360:        // before 6:00am
-      phase = RED
-      fillPct = clamp((minutesSinceMidnight - 180) / (360 - 180), 0, 1)   // 3:00–6:00 window
-  else if minutesSinceMidnight < 420:   // 6:00–7:00am
-      phase = YELLOW
-      fillPct = (minutesSinceMidnight - 360) / (420 - 360)                // 6:00–7:00 window
-  else:                                  // 7:00am onward
-      phase = GREEN
-      fillPct = 1
-  ```
+- GREEN/FAMILY is the "okay to leave your room" state for the day. At 07:30 the full
+  green bar is swapped for the calm daytime family illustration; the meaning is
+  unchanged, it's just gentler to look at for the many hours it's shown.
+- BLUE is a visual wind-down toward the evening: a full blue bar appears at 16:15 and
+  drains to empty by 17:15, with a factual "Xm until 5:15 PM" countdown.
+- LOCKED corresponds to the device's own iOS Screen Time lock taking over at 17:15 (the
+  app cannot lock the device itself — see Section 6). It shows a sleeping-boy bedtime
+  scene until the clock rolls past midnight and the cycle returns to RED.
+- Countdown boundaries: RED/YELLOW count down to 07:00; BLUE counts down to 17:15. No
+  countdown is shown during GREEN, FAMILY, or LOCKED.
+
+A `?phase=` query parameter (e.g. `.../jasper-timer/?phase=locked`) forces any phase's
+artwork for preview/testing, while the live clock stays real. It has no effect on normal
+use and exists only so the schedule's visuals can be checked without waiting for that
+time of day. Valid values: `red`, `yellow`, `green`, `family`, `blue`, `locked`.
 
 ## 3. Visual Design
 
-- **Background:** cream / off-white, fixed regardless of phase. The background itself
-  never changes color.
-- **Progress bar:** the single focal element, centered on the screen. Its fill color
-  changes with phase using bright, standard, fully-saturated "traffic light" colors
-  (true red / yellow / green — not muted or pastel tones). Exact hex values are an
-  implementation detail; use conventional, unambiguous traffic-light shades.
-- **No decorative personalization** — no characters, themes, or imagery. Keep the
-  screen clean and uncluttered.
+- **Background:** cream / off-white for the daytime phases (RED through BLUE), fixed and
+  not tied to fill color. The LOCKED bedtime phase shifts to a calm twilight-lavender
+  background to reinforce the wind-down for the evening.
+- **Progress bar:** the focal element for the timed phases (RED, YELLOW, GREEN, BLUE),
+  centered on the screen. Its fill color changes with phase using bright, standard,
+  fully-saturated "traffic light" colors (true red / yellow / green, plus a blue
+  wind-down — not muted or pastel tones). Exact hex values are an implementation detail.
+- **Phase illustrations:** two flat, calming inline-SVG scenes replace the bar for the
+  long stretches where it would otherwise sit static — a daytime family scene during
+  FAMILY (07:30–16:15) and a sleeping-boy bedtime scene during LOCKED (17:15–midnight).
+  These are deliberate, gentle visuals; they carry no words and don't change the
+  color-based meaning. (This intentionally supersedes the original "no imagery"
+  guidance — the illustrations proved calmer to look at than a static bar for hours.)
 - **No plain-language instructional text** (e.g. do NOT show phrases like "stay in your
-  room" or "you can come out now"). Color is the only status signal.
+  room" or "you can come out now"). Color / scene is the status signal, never words.
 - **Numeric display required, alongside the bar:**
   - The current time (assume 12-hour format with AM/PM unless told otherwise).
   - A neutral countdown readout of time remaining until 7:00 AM (e.g. "1h 12m" or "23
@@ -103,8 +115,8 @@ Notes:
 ## 6. Explicitly Out of Scope
 
 - Sound/audio cues.
-- Personalized theming (characters, favorite colors, images).
-- Plain-language instructional labels per phase.
+- Plain-language instructional labels per phase (color and the calming phase
+  illustrations carry the meaning — never words).
 - Any settings/configuration UI.
 - Weekday vs. weekend (or holiday) schedule variation.
 - Any mechanism to keep the iPad screen awake/unlocked overnight — that is a device
@@ -123,15 +135,20 @@ Section 5), so it's not purely informational.
    network calls at runtime, per Section 5). No build step, no bundler, no package
    manager output — GitHub Pages must be able to serve the repo as-is with zero
    configuration.
-3. **Enable Pages:** in the repo, Settings → Pages → "Build and deployment" → Source:
-   "Deploy from a branch" → Branch: `main`, folder: `/ (root)`.
+3. **Enable Pages via GitHub Actions:** in the repo, Settings → Pages → "Build and
+   deployment" → Source: **"GitHub Actions"**. Deployment is driven by the workflow at
+   `.github/workflows/deploy.yml` (official `actions/deploy-pages`), which publishes the
+   repo root on every push to `main`. Its `concurrency: cancel-in-progress` setting means
+   a superseded build is cancelled rather than left queued — this replaced the earlier
+   "Deploy from a branch" auto-build, which once sat stuck in a queued state and failed
+   to publish.
 4. **Resulting live URL:** `https://charlie-beard.github.io/jasper-timer/` — served
    over HTTPS automatically, which iOS "Add to Home Screen" relies on for correct
    full-screen behavior.
 5. **Redeploying:** any future change (e.g. editing the hardcoded time constants from
-   Section 2) is deployed by committing and pushing to `main`; GitHub Pages rebuilds
-   automatically, typically live within about a minute. This is the mechanism referred
-   to in Section 4 for changing the schedule later.
+   Section 2) is deployed by committing and pushing to `main`; the Actions workflow
+   rebuilds automatically, typically live within about a minute. This is the mechanism
+   referred to in Section 4 for changing the schedule later.
 6. **Device-side setup**, once the Pages URL is live:
    - On the child's iPad: Settings → Screen Time → Content & Privacy Restrictions →
      Content Restrictions → Web Content → **Allowed Websites Only** → add
