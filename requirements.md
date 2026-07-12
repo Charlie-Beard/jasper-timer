@@ -14,8 +14,10 @@ simplicity over flexibility.
 ## 2. Core Behavior — Time Logic
 
 The app has no persisted state and no daily "reset" step. Every phase is derived purely
-from the device's current local wall-clock time, recomputed continuously. The same
-schedule applies every day of the week — no weekday/weekend variation.
+from the device's current local wall-clock time, recomputed continuously. The phase
+*timing* is identical every day of the week — no weekday/weekend variation in the
+schedule. The only day-of-week difference is visual: on weekends the daytime FAMILY
+scene gains a second "trip to the cinema" illustration (see the note below).
 
 The boundaries below are hardcoded constants at the top of the script in `index.html`
 (`RED_FILL_START`, `YELLOW_START`, `GREEN_START`, `FAMILY_START`, `DRAIN_START`,
@@ -44,11 +46,17 @@ Notes:
   scene until the clock rolls past midnight and the cycle returns to RED.
 - Countdown boundaries: RED/YELLOW count down to 07:00; BLUE counts down to 17:15. No
   countdown is shown during GREEN, FAMILY, or LOCKED.
+- **Weekend cinema scene:** on Saturday and Sunday (device local day of week), the FAMILY
+  phase shows the usual family illustration *plus* a second flat-SVG scene of the blonde
+  boy heading to the cinema (popcorn in hand), stacked below it. The timing of the phase
+  is unchanged; only the daytime artwork differs. On weekdays only the family scene shows.
 
 A `?phase=` query parameter (e.g. `.../jasper-timer/?phase=locked`) forces any phase's
 artwork for preview/testing, while the live clock stays real. It has no effect on normal
 use and exists only so the schedule's visuals can be checked without waiting for that
-time of day. Valid values: `red`, `yellow`, `green`, `family`, `blue`, `locked`.
+time of day. Valid values: `red`, `yellow`, `green`, `family`, `blue`, `locked`. A
+companion `?weekend=1` / `?weekend=0` parameter forces the weekend cinema scene on or off
+for preview (e.g. `.../jasper-timer/?phase=family&weekend=1`).
 
 ## 3. Visual Design
 
@@ -59,12 +67,14 @@ time of day. Valid values: `red`, `yellow`, `green`, `family`, `blue`, `locked`.
   centered on the screen. Its fill color changes with phase using bright, standard,
   fully-saturated "traffic light" colors (true red / yellow / green, plus a blue
   wind-down — not muted or pastel tones). Exact hex values are an implementation detail.
-- **Phase illustrations:** two flat, calming inline-SVG scenes replace the bar for the
-  long stretches where it would otherwise sit static — a daytime family scene during
-  FAMILY (07:30–16:15) and a sleeping-boy bedtime scene during LOCKED (17:15–midnight).
-  These are deliberate, gentle visuals; they carry no words and don't change the
-  color-based meaning. (This intentionally supersedes the original "no imagery"
-  guidance — the illustrations proved calmer to look at than a static bar for hours.)
+- **Phase illustrations:** flat, calming inline-SVG scenes replace the bar for the long
+  stretches where it would otherwise sit static — a daytime family scene during FAMILY
+  (07:30–16:15) and a sleeping-boy bedtime scene during LOCKED (17:15–midnight). On
+  weekends the FAMILY phase adds a second scene of the blonde boy going to the cinema,
+  stacked below the family scene. These are deliberate, gentle visuals; they carry no
+  words and don't change the color-based meaning. (This intentionally supersedes the
+  original "no imagery" guidance — the illustrations proved calmer to look at than a
+  static bar for hours.)
 - **No plain-language instructional text** (e.g. do NOT show phrases like "stay in your
   room" or "you can come out now"). Color / scene is the status signal, never words.
 - **Numeric display required, alongside the bar:**
@@ -118,7 +128,9 @@ time of day. Valid values: `red`, `yellow`, `green`, `family`, `blue`, `locked`.
 - Plain-language instructional labels per phase (color and the calming phase
   illustrations carry the meaning — never words).
 - Any settings/configuration UI.
-- Weekday vs. weekend (or holiday) schedule variation.
+- Weekday vs. weekend (or holiday) variation in the *schedule/timing* — the phase
+  boundaries are identical every day. (The daytime illustration does vary on weekends;
+  see Sections 2 and 3. Holidays are not distinguished from ordinary days.)
 - Any mechanism to keep the iPad screen awake/unlocked overnight — that is a device
   setting (iOS Auto-Lock), not an app concern, and is out of scope for the build.
 
