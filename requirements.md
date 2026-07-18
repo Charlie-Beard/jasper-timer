@@ -14,15 +14,19 @@ simplicity over flexibility.
 ## 2. Core Behavior — Time Logic
 
 The app has no persisted state and no daily "reset" step. Every phase is derived purely
-from the device's current local wall-clock time, recomputed continuously. The phase
-*timing* is identical every day of the week — no weekday/weekend variation in the
-schedule. The only day-of-week difference is visual: on weekends the daytime FAMILY
-scene gains a second "trip to the cinema" illustration (see the note below).
+from the device's current local wall-clock time, recomputed continuously. The schedule
+is the same every day except for one weekend difference: on Saturday and Sunday the
+GREEN wake-up boundary (and the FAMILY boundary that follows it) shifts 30 minutes
+later, so GREEN starts at 07:30 instead of 07:00. Weekends also add a visual
+difference: the daytime FAMILY scene gains a second "trip to the cinema" illustration
+(see the note below).
 
 The boundaries below are hardcoded constants in the `SCHEDULE` object at the top of
 `schedule.js` (`RED_FILL_START`, `YELLOW_START`, `GREEN_START`, `FAMILY_START`,
-`DRAIN_START`, `LOCK_TIME`). Changing the schedule means editing those and redeploying
-(Section 7).
+`WEEKEND_GREEN_START`, `WEEKEND_FAMILY_START`, `DRAIN_START`, `LOCK_TIME`). Changing
+the schedule means editing those and redeploying (Section 7).
+
+Weekdays (Mon–Fri):
 
 | Time of day     | Phase  | What's shown                                                        |
 |-----------------|--------|---------------------------------------------------------------------|
@@ -33,31 +37,42 @@ The boundaries below are hardcoded constants in the `SCHEDULE` object at the top
 | 16:15 – 17:14   | BLUE   | Blue "wind-down" bar draining from full at 16:15 to empty at 17:15   |
 | 17:15 – 23:59   | LOCKED | Bedtime illustration (sleeping boy) on a calm twilight background    |
 
+Weekends (Sat–Sun) — GREEN/FAMILY shift 30 minutes later; everything else is identical:
+
+| Time of day     | Phase  | What's shown                                                        |
+|-----------------|--------|---------------------------------------------------------------------|
+| 06:00 – 07:29   | YELLOW | Yellow bar, proportional fill across the 06:00→07:30 window          |
+| 07:30 – 07:59   | GREEN  | Full green bar — the "you can come out" signal                       |
+| 08:00 – 16:14   | FAMILY | Family illustration plus the weekend cinema scene (bar hidden)       |
+
 Notes:
 - Anything before 06:00 — including the middle of the night (e.g. 2am) — is RED. There
   is no separate "night" state; before 03:00 is visually identical to the rest of RED,
   just with the bar empty (0%).
-- GREEN/FAMILY is the "okay to leave your room" state for the day. At 07:30 the full
-  green bar is swapped for the calm daytime family illustration; the meaning is
-  unchanged, it's just gentler to look at for the many hours it's shown.
+- GREEN/FAMILY is the "okay to leave your room" state for the day. Thirty minutes into
+  GREEN (07:30 weekdays, 08:00 weekends) the full green bar is swapped for the calm
+  daytime family illustration; the meaning is unchanged, it's just gentler to look at
+  for the many hours it's shown.
 - BLUE is a visual wind-down toward the evening: a full blue bar appears at 16:15 and
   drains to empty by 17:15, with a factual "Xm until 5:15 PM" countdown.
 - LOCKED corresponds to the device's own iOS Screen Time lock taking over at 17:15 (the
   app cannot lock the device itself — see Section 6). It shows a sleeping-boy bedtime
   scene until the clock rolls past midnight and the cycle returns to RED.
-- Countdown boundaries: RED/YELLOW count down to 07:00; BLUE counts down to 17:15. No
-  countdown is shown during GREEN, FAMILY, or LOCKED.
+- Countdown boundaries: RED/YELLOW count down to GREEN's start (07:00 on weekdays,
+  07:30 on weekends, with the "until …" caption matching); BLUE counts down to 17:15.
+  No countdown is shown during GREEN, FAMILY, or LOCKED.
 - **Weekend cinema scene:** on Saturday and Sunday (device local day of week), the FAMILY
   phase shows the usual family illustration *plus* a second flat-SVG scene of the blonde
-  boy heading to the cinema (popcorn in hand), stacked below it. The timing of the phase
-  is unchanged; only the daytime artwork differs. On weekdays only the family scene shows.
+  boy heading to the cinema (popcorn in hand), stacked below it. On weekdays only the
+  family scene shows.
 
 A `?phase=` query parameter (e.g. `.../jasper-timer/?phase=locked`) forces any phase's
 artwork for preview/testing, while the live clock stays real. It has no effect on normal
 use and exists only so the schedule's visuals can be checked without waiting for that
 time of day. Valid values: `red`, `yellow`, `green`, `family`, `blue`, `locked`. A
-companion `?weekend=1` / `?weekend=0` parameter forces the weekend cinema scene on or off
-for preview (e.g. `.../jasper-timer/?phase=family&weekend=1`).
+companion `?weekend=1` / `?weekend=0` parameter forces the weekend variant (the
+30-minute-later morning schedule and the cinema scene) on or off for preview
+(e.g. `.../jasper-timer/?phase=family&weekend=1`).
 
 ## 3. Visual Design
 
@@ -80,8 +95,9 @@ for preview (e.g. `.../jasper-timer/?phase=family&weekend=1`).
   room" or "you can come out now"). Color / scene is the status signal, never words.
 - **Numeric display required, alongside the bar:**
   - The current time (assume 12-hour format with AM/PM unless told otherwise).
-  - A neutral countdown readout of time remaining until 7:00 AM (e.g. "1h 12m" or "23
-    minutes"), showing 0 / not shown once GREEN.
+  - A neutral countdown readout of time remaining until GREEN starts (7:00 AM on
+    weekdays, 7:30 AM on weekends; e.g. "1h 12m" or "23 minutes"), showing 0 / not
+    shown once GREEN.
   - These are factual/numeric only — not instructional phrasing.
 - **No sound of any kind.** Fully silent, visual-only feedback.
 - **Layout:** primarily used in landscape (iPad propped on a stand), but must be
@@ -96,9 +112,10 @@ for preview (e.g. `.../jasper-timer/?phase=family&weekend=1`).
   it, and switch back to Netflix repeatedly through the morning.
 - No buttons, no navigation, no user interaction beyond opening the app. It's a
   read-only display.
-- No settings screen and no in-app configuration. The 3:00 / 6:00 / 7:00 boundaries are
-  hardcoded constants in the source. If they ever need to change, that will be done by
-  editing and redeploying the app, not via an in-app control.
+- No settings screen and no in-app configuration. The schedule boundaries (3:00 / 6:00
+  and the 7:00 weekday / 7:30 weekend wake-up) are hardcoded constants in the source.
+  If they ever need to change, that will be done by editing and redeploying the app,
+  not via an in-app control.
 
 ## 5. Technical Constraints
 
@@ -130,9 +147,10 @@ for preview (e.g. `.../jasper-timer/?phase=family&weekend=1`).
 - Plain-language instructional labels per phase (color and the calming phase
   illustrations carry the meaning — never words).
 - Any settings/configuration UI.
-- Weekday vs. weekend (or holiday) variation in the *schedule/timing* — the phase
-  boundaries are identical every day. (The daytime illustration does vary on weekends;
-  see Sections 2 and 3. Holidays are not distinguished from ordinary days.)
+- Holiday variation in the schedule — holidays are not distinguished from ordinary
+  days. (Weekends *do* differ: the GREEN/FAMILY morning boundaries shift 30 minutes
+  later and the daytime illustration adds the cinema scene; see Sections 2 and 3.
+  Nothing beyond that single weekday/weekend split is supported.)
 - Any mechanism to keep the iPad screen awake/unlocked overnight — that is a device
   setting (iOS Auto-Lock), not an app concern, and is out of scope for the build.
 

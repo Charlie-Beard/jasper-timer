@@ -12,8 +12,12 @@
   var SCHEDULE = {
     RED_FILL_START: 3 * 60,       // 03:00 — bar begins filling (clamped to 0% before)
     YELLOW_START:   6 * 60,       // 06:00 — RED becomes YELLOW
-    GREEN_START:    7 * 60,       // 07:00 — YELLOW becomes GREEN
-    FAMILY_START:   7 * 60 + 30,  // 07:30 — bar is replaced by the family illustration
+    GREEN_START:    7 * 60,       // 07:00 — YELLOW becomes GREEN (weekdays)
+    FAMILY_START:   7 * 60 + 30,  // 07:30 — bar is replaced by the family illustration (weekdays)
+    // Sat/Sun sleep in: GREEN and FAMILY shift 30 minutes later. The other
+    // boundaries are the same every day.
+    WEEKEND_GREEN_START:  7 * 60 + 30, // 07:30 — YELLOW becomes GREEN (Sat/Sun)
+    WEEKEND_FAMILY_START: 8 * 60,      // 08:00 — family illustration (Sat/Sun)
     DRAIN_START:    16 * 60 + 15, // 16:15 — full BLUE bar appears and starts draining
     LOCK_TIME:      17 * 60 + 15  // 17:15 — bar empty; device Screen Time lock takes over
   };
@@ -44,38 +48,43 @@
     return formatClock(Math.floor(mins / 60), mins % 60);
   }
 
-  var GREEN_CAPTION = "until " + minutesToClockLabel(SCHEDULE.GREEN_START);
-  var LOCK_CAPTION  = "until " + minutesToClockLabel(SCHEDULE.LOCK_TIME);
+  var GREEN_CAPTION         = "until " + minutesToClockLabel(SCHEDULE.GREEN_START);
+  var WEEKEND_GREEN_CAPTION = "until " + minutesToClockLabel(SCHEDULE.WEEKEND_GREEN_START);
+  var LOCK_CAPTION          = "until " + minutesToClockLabel(SCHEDULE.LOCK_TIME);
 
   /*
    * The single source of truth for what the screen shows. Takes minutes since
    * midnight (fractional — seconds are folded in by the caller so the fill
-   * moves smoothly between ticks) and returns:
+   * moves smoothly between ticks) plus an isWeekend flag (Sat/Sun wake-up is
+   * 30 minutes later) and returns:
    *   { phase, color, fillPct, cdText, cdCaption }
    * Phase boundaries land exactly on the minute marks in SCHEDULE.
    */
-  function computeDisplayState(mins) {
+  function computeDisplayState(mins, isWeekend) {
     var s = SCHEDULE;
+    var greenStart  = isWeekend ? s.WEEKEND_GREEN_START : s.GREEN_START;
+    var familyStart = isWeekend ? s.WEEKEND_FAMILY_START : s.FAMILY_START;
+    var greenCaption = isWeekend ? WEEKEND_GREEN_CAPTION : GREEN_CAPTION;
 
     if (mins < s.YELLOW_START) {
       return {
         phase: "red",
         color: COLORS.red,
         fillPct: clamp((mins - s.RED_FILL_START) / (s.YELLOW_START - s.RED_FILL_START), 0, 1),
-        cdText: formatHM(Math.ceil(s.GREEN_START - mins)),
-        cdCaption: GREEN_CAPTION
+        cdText: formatHM(Math.ceil(greenStart - mins)),
+        cdCaption: greenCaption
       };
     }
-    if (mins < s.GREEN_START) {
+    if (mins < greenStart) {
       return {
         phase: "yellow",
         color: COLORS.yellow,
-        fillPct: (mins - s.YELLOW_START) / (s.GREEN_START - s.YELLOW_START),
-        cdText: formatHM(Math.ceil(s.GREEN_START - mins)),
-        cdCaption: GREEN_CAPTION
+        fillPct: (mins - s.YELLOW_START) / (greenStart - s.YELLOW_START),
+        cdText: formatHM(Math.ceil(greenStart - mins)),
+        cdCaption: greenCaption
       };
     }
-    if (mins < s.FAMILY_START) {
+    if (mins < familyStart) {
       return { phase: "green", color: COLORS.green, fillPct: 1, cdText: "", cdCaption: "" };
     }
     if (mins < s.DRAIN_START) {
