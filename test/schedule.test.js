@@ -58,7 +58,7 @@ test("YELLOW fill is proportional across 06:00-07:00", () => {
   assert.strictEqual(computeDisplayState(at(6, 30)).fillPct, 0.5);
 });
 
-test("07:00 flips to GREEN, full bar, no countdown", () => {
+test("07:00 flips to GREEN, full bar, no countdown (weekday)", () => {
   const st = computeDisplayState(at(7, 0));
   assert.strictEqual(st.phase, "green");
   assert.strictEqual(st.fillPct, 1);
@@ -71,6 +71,53 @@ test("07:30 flips to FAMILY (illustration), still green underneath", () => {
   assert.strictEqual(st.phase, "family");
   assert.strictEqual(st.color, COLORS.green);
   assert.strictEqual(st.cdText, "");
+});
+
+// --- Weekend schedule: GREEN and FAMILY shift 30 minutes later (Sat/Sun) ----
+
+const WEEKEND = true;
+
+test("weekend: 07:00 is still YELLOW, counting down to 7:30 AM", () => {
+  const st = computeDisplayState(at(7, 0), WEEKEND);
+  assert.strictEqual(st.phase, "yellow");
+  assert.strictEqual(st.cdText, "30m");
+  assert.strictEqual(st.cdCaption, "until 7:30 AM");
+});
+
+test("weekend: YELLOW fill is proportional across 06:00-07:30", () => {
+  assert.strictEqual(computeDisplayState(at(6, 0), WEEKEND).fillPct, 0);
+  assert.strictEqual(computeDisplayState(at(6, 45), WEEKEND).fillPct, 0.5);
+  assert.ok(computeDisplayState(at(7, 29), WEEKEND).fillPct < 1);
+});
+
+test("weekend: 07:30 flips to GREEN, full bar, no countdown", () => {
+  const st = computeDisplayState(at(7, 30), WEEKEND);
+  assert.strictEqual(st.phase, "green");
+  assert.strictEqual(st.fillPct, 1);
+  assert.strictEqual(st.cdText, "");
+  assert.strictEqual(st.cdCaption, "");
+});
+
+test("weekend: 08:00 flips to FAMILY", () => {
+  assert.strictEqual(computeDisplayState(at(7, 59), WEEKEND).phase, "green");
+  assert.strictEqual(computeDisplayState(at(8, 0), WEEKEND).phase, "family");
+});
+
+test("weekend: RED counts down to 7:30 AM", () => {
+  const st = computeDisplayState(at(5, 48), WEEKEND);
+  assert.strictEqual(st.phase, "red");
+  assert.strictEqual(st.cdText, "1h 42m");
+  assert.strictEqual(st.cdCaption, "until 7:30 AM");
+});
+
+test("weekend: countdown rounds up, never 0 while still running", () => {
+  assert.strictEqual(computeDisplayState(at(7, 29, 30), WEEKEND).cdText, "1m");
+});
+
+test("weekend: afternoon/evening boundaries are unchanged", () => {
+  assert.strictEqual(computeDisplayState(at(16, 14), WEEKEND).phase, "family");
+  assert.strictEqual(computeDisplayState(at(16, 15), WEEKEND).phase, "blue");
+  assert.strictEqual(computeDisplayState(at(17, 15), WEEKEND).phase, "locked");
 });
 
 test("16:14 is still FAMILY", () => {
@@ -134,6 +181,10 @@ test("captions match the boundary constants", () => {
   assert.strictEqual(
     computeDisplayState(at(5, 0)).cdCaption,
     "until " + minutesToClockLabel(SCHEDULE.GREEN_START)
+  );
+  assert.strictEqual(
+    computeDisplayState(at(5, 0), WEEKEND).cdCaption,
+    "until " + minutesToClockLabel(SCHEDULE.WEEKEND_GREEN_START)
   );
   assert.strictEqual(
     computeDisplayState(at(16, 30)).cdCaption,

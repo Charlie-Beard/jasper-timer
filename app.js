@@ -11,8 +11,8 @@
   // Optional ?phase= override for previewing any phase's artwork without
   // waiting for that time of day (e.g. ?phase=locked). Invisible in normal
   // use — the live clock stays real; only the bar/illustration/countdown are
-  // forced. ?weekend=1 / ?weekend=0 forces the weekend (cinema) variant on or
-  // off; otherwise the real day of week decides.
+  // forced. ?weekend=1 / ?weekend=0 forces the weekend variant (later wake-up
+  // schedule + cinema scene) on or off; otherwise the real day of week decides.
   var QS = new URLSearchParams(location.search);
   var OVERRIDE = QS.get("phase");
   var WEEKEND_OVERRIDE = QS.get("weekend");
@@ -29,18 +29,19 @@
     // boundaries land on exactly the minute marks in SCHEDULE.
     var mins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
 
-    var state = S.computeDisplayState(mins);
+    // Weekend flag shifts the morning schedule (GREEN starts 07:30 on Sat/Sun)
+    // and drives the extra cinema scene during the daytime phase.
+    var day = now.getDay(); // 0 = Sunday, 6 = Saturday
+    var isWeekend = (day === 0 || day === 6);
+    if (WEEKEND_OVERRIDE === "1" || WEEKEND_OVERRIDE === "true")  isWeekend = true;
+    if (WEEKEND_OVERRIDE === "0" || WEEKEND_OVERRIDE === "false") isWeekend = false;
+
+    var state = S.computeDisplayState(mins, isWeekend);
 
     // Preview override: force the requested phase's look, keep the real clock.
     if (OVERRIDE && S.PREVIEW.hasOwnProperty(OVERRIDE)) {
       state = S.PREVIEW[OVERRIDE];
     }
-
-    // Weekend flag drives the extra cinema scene during the daytime phase.
-    var day = now.getDay(); // 0 = Sunday, 6 = Saturday
-    var isWeekend = (day === 0 || day === 6);
-    if (WEEKEND_OVERRIDE === "1" || WEEKEND_OVERRIDE === "true")  isWeekend = true;
-    if (WEEKEND_OVERRIDE === "0" || WEEKEND_OVERRIDE === "false") isWeekend = false;
 
     document.body.setAttribute("data-phase", state.phase);
     document.body.setAttribute("data-weekend", isWeekend ? "true" : "false");
