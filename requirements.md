@@ -19,9 +19,10 @@ from the device's current local wall-clock time, recomputed continuously. The ph
 schedule. The only day-of-week difference is visual: on weekends the daytime FAMILY
 scene gains a second "trip to the cinema" illustration (see the note below).
 
-The boundaries below are hardcoded constants at the top of the script in `index.html`
-(`RED_FILL_START`, `YELLOW_START`, `GREEN_START`, `FAMILY_START`, `DRAIN_START`,
-`LOCK_TIME`). Changing the schedule means editing those and redeploying (Section 7).
+The boundaries below are hardcoded constants in the `SCHEDULE` object at the top of
+`schedule.js` (`RED_FILL_START`, `YELLOW_START`, `GREEN_START`, `FAMILY_START`,
+`DRAIN_START`, `LOCK_TIME`). Changing the schedule means editing those and redeploying
+(Section 7).
 
 | Time of day     | Phase  | What's shown                                                        |
 |-----------------|--------|---------------------------------------------------------------------|
@@ -101,8 +102,9 @@ for preview (e.g. `.../jasper-timer/?phase=family&weekend=1`).
 
 ## 5. Technical Constraints
 
-- **Must be a static, self-contained web app** — a single HTML file (with inline/bundled
-  CSS and JS is fine) with **no external network dependencies** (no CDN scripts, no
+- **Must be a static, self-contained web app** — plain HTML/CSS/JS files served from the
+  repo itself (inline or as same-origin files; currently `index.html`, `styles.css`,
+  `schedule.js`, `app.js`) with **no external network dependencies** (no CDN scripts, no
   external web fonts, no external images/API calls at runtime). This matters because:
   - The iPad will have Safari locked to a single allowed domain via iOS Screen Time
     ("Allowed Websites Only"), and any external sub-resources risk being blocked.
@@ -142,11 +144,11 @@ Section 5), so it's not purely informational.
 
 1. **Create the repository:** a new GitHub repo under `github.com/Charlie-Beard`
    (assumed name: `jasper-timer`, public — see assumptions below).
-2. **Ship as a single static file at the repo root**, named `index.html` (CSS/JS may be
-   inlined in it, or included as additional files in the repo — but with no external
-   network calls at runtime, per Section 5). No build step, no bundler, no package
-   manager output — GitHub Pages must be able to serve the repo as-is with zero
-   configuration.
+2. **Ship as static files at the repo root**: `index.html` (markup + inline SVG scenes)
+   plus same-origin `styles.css`, `schedule.js` (schedule constants and pure phase
+   logic), and `app.js` (DOM wiring) — with no external network calls at runtime, per
+   Section 5. No build step, no bundler, no package manager output — GitHub Pages must
+   be able to serve the repo as-is with zero configuration.
 3. **Enable Pages via GitHub Actions:** in the repo, Settings → Pages → "Build and
    deployment" → Source: **"GitHub Actions"**. Deployment is driven by the workflow at
    `.github/workflows/deploy.yml` (official `actions/deploy-pages`), which publishes the
