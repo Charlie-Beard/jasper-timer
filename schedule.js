@@ -13,9 +13,9 @@
     RED_FILL_START: 3 * 60,       // 03:00 — bar begins filling (clamped to 0% before)
     YELLOW_START:   6 * 60,       // 06:00 — RED becomes YELLOW
     GREEN_START:    7 * 60 + 15,  // 07:15 — YELLOW becomes GREEN (weekdays)
-    FAMILY_START:   7 * 60 + 30,  // 07:30 — bar is replaced by the family illustration (weekdays)
-    // Sat/Sun sleep in: GREEN starts 15 minutes later and FAMILY 30 minutes
-    // later than on weekdays. The other boundaries are the same every day.
+    FAMILY_START:   7 * 60 + 45,  // 07:45 — bar is replaced by the family illustration (weekdays)
+    // Sat/Sun sleep in: GREEN and FAMILY start 15 minutes later than on
+    // weekdays. The other boundaries are the same every day.
     WEEKEND_GREEN_START:  7 * 60 + 30, // 07:30 — YELLOW becomes GREEN (Sat/Sun)
     WEEKEND_FAMILY_START: 8 * 60,      // 08:00 — family illustration (Sat/Sun)
     DRAIN_START:    16 * 60 + 15, // 16:15 — full BLUE bar appears and starts draining

@@ -67,14 +67,15 @@ test("07:15 flips to GREEN, full bar, no countdown (weekday)", () => {
   assert.strictEqual(st.cdCaption, "");
 });
 
-test("07:30 flips to FAMILY (illustration), still green underneath", () => {
-  const st = computeDisplayState(at(7, 30));
+test("07:45 flips to FAMILY (illustration), still green underneath", () => {
+  assert.strictEqual(computeDisplayState(at(7, 44)).phase, "green");
+  const st = computeDisplayState(at(7, 45));
   assert.strictEqual(st.phase, "family");
   assert.strictEqual(st.color, COLORS.green);
   assert.strictEqual(st.cdText, "");
 });
 
-// --- Weekend schedule: GREEN starts 15 minutes later, FAMILY 30 (Sat/Sun) ---
+// --- Weekend schedule: GREEN and FAMILY start 15 minutes later (Sat/Sun) ----
 
 const WEEKEND = true;
 

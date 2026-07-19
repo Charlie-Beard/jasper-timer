@@ -16,9 +16,9 @@ simplicity over flexibility.
 The app has no persisted state and no daily "reset" step. Every phase is derived purely
 from the device's current local wall-clock time, recomputed continuously. The schedule
 is the same every day except for one weekend difference: on Saturday and Sunday the
-GREEN wake-up boundary (and the FAMILY boundary that follows it) shifts later, so
-GREEN starts at 07:30 instead of 07:15 and FAMILY at 08:00 instead of 07:30.
-Weekends also add a visual
+GREEN wake-up boundary (and the FAMILY boundary that follows it) shifts 15 minutes
+later, so GREEN starts at 07:30 instead of 07:15 and FAMILY at 08:00 instead of
+07:45. Weekends also add a visual
 difference: the daytime FAMILY scene gains a second "trip to the cinema" illustration
 (see the note below).
 
@@ -33,13 +33,13 @@ Weekdays (Mon–Fri):
 |-----------------|--------|---------------------------------------------------------------------|
 | 00:00 – 05:59   | RED    | Red bar, proportional fill across 03:00→06:00, clamped to 0% before 03:00 |
 | 06:00 – 07:14   | YELLOW | Yellow bar, proportional fill across the 06:00→07:15 window          |
-| 07:15 – 07:29   | GREEN  | Full green bar — the "you can come out" signal                       |
-| 07:30 – 16:14   | FAMILY | Green state continues, shown as a daytime family illustration (bar hidden) |
+| 07:15 – 07:44   | GREEN  | Full green bar — the "you can come out" signal                       |
+| 07:45 – 16:14   | FAMILY | Green state continues, shown as a daytime family illustration (bar hidden) |
 | 16:15 – 17:14   | BLUE   | Blue "wind-down" bar draining from full at 16:15 to empty at 17:15   |
 | 17:15 – 23:59   | LOCKED | Bedtime illustration (sleeping boy) on a calm twilight background    |
 
-Weekends (Sat–Sun) — GREEN starts 15 minutes later and FAMILY 30 minutes later;
-everything else is identical:
+Weekends (Sat–Sun) — GREEN and FAMILY start 15 minutes later; everything else is
+identical:
 
 | Time of day     | Phase  | What's shown                                                        |
 |-----------------|--------|---------------------------------------------------------------------|
@@ -51,10 +51,10 @@ Notes:
 - Anything before 06:00 — including the middle of the night (e.g. 2am) — is RED. There
   is no separate "night" state; before 03:00 is visually identical to the rest of RED,
   just with the bar empty (0%).
-- GREEN/FAMILY is the "okay to leave your room" state for the day. Part-way into
-  GREEN (07:30 weekdays — 15 minutes in; 08:00 weekends — 30 minutes in) the full
-  green bar is swapped for the calm daytime family illustration; the meaning is
-  unchanged, it's just gentler to look at for the many hours it's shown.
+- GREEN/FAMILY is the "okay to leave your room" state for the day. Thirty minutes into
+  GREEN (07:45 weekdays, 08:00 weekends) the full green bar is swapped for the calm
+  daytime family illustration; the meaning is unchanged, it's just gentler to look at
+  for the many hours it's shown.
 - BLUE is a visual wind-down toward the evening: a full blue bar appears at 16:15 and
   drains to empty by 17:15, with a factual "Xm until 5:15 PM" countdown.
 - LOCKED corresponds to the device's own iOS Screen Time lock taking over at 17:15 (the
@@ -87,7 +87,7 @@ companion `?weekend=1` / `?weekend=0` parameter forces the weekend variant (the
   wind-down — not muted or pastel tones). Exact hex values are an implementation detail.
 - **Phase illustrations:** flat, calming inline-SVG scenes replace the bar for the long
   stretches where it would otherwise sit static — a daytime family scene during FAMILY
-  (07:30–16:15) and a sleeping-boy bedtime scene during LOCKED (17:15–midnight). On
+  (07:45–16:15) and a sleeping-boy bedtime scene during LOCKED (17:15–midnight). On
   weekends the FAMILY phase adds a second scene of the blonde boy going to the cinema,
   stacked below the family scene. These are deliberate, gentle visuals; they carry no
   words and don't change the color-based meaning. (This intentionally supersedes the
