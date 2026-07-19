@@ -54,12 +54,13 @@ test("06:00 flips to YELLOW at 0%", () => {
   assert.strictEqual(st.color, COLORS.yellow);
 });
 
-test("YELLOW fill is proportional across 06:00-07:00", () => {
-  assert.strictEqual(computeDisplayState(at(6, 30)).fillPct, 0.5);
+test("YELLOW fill is proportional across 06:00-07:15", () => {
+  assert.strictEqual(computeDisplayState(at(6, 37, 30)).fillPct, 0.5);
 });
 
-test("07:00 flips to GREEN, full bar, no countdown (weekday)", () => {
-  const st = computeDisplayState(at(7, 0));
+test("07:15 flips to GREEN, full bar, no countdown (weekday)", () => {
+  assert.strictEqual(computeDisplayState(at(7, 14)).phase, "yellow");
+  const st = computeDisplayState(at(7, 15));
   assert.strictEqual(st.phase, "green");
   assert.strictEqual(st.fillPct, 1);
   assert.strictEqual(st.cdText, "");
@@ -73,7 +74,7 @@ test("07:30 flips to FAMILY (illustration), still green underneath", () => {
   assert.strictEqual(st.cdText, "");
 });
 
-// --- Weekend schedule: GREEN and FAMILY shift 30 minutes later (Sat/Sun) ----
+// --- Weekend schedule: GREEN starts 15 minutes later, FAMILY 30 (Sat/Sun) ---
 
 const WEEKEND = true;
 
@@ -150,21 +151,21 @@ test("23:59 is still LOCKED", () => {
 
 // --- Countdown text ---------------------------------------------------------
 
-test("RED counts down to 7:00 AM in h/m form", () => {
+test("RED counts down to 7:15 AM in h/m form", () => {
   const st = computeDisplayState(at(5, 48));
-  assert.strictEqual(st.cdText, "1h 12m");
-  assert.strictEqual(st.cdCaption, "until 7:00 AM");
+  assert.strictEqual(st.cdText, "1h 27m");
+  assert.strictEqual(st.cdCaption, "until 7:15 AM");
 });
 
-test("YELLOW counts down to 7:00 AM in minutes", () => {
-  const st = computeDisplayState(at(6, 37));
+test("YELLOW counts down to 7:15 AM in minutes", () => {
+  const st = computeDisplayState(at(6, 52));
   assert.strictEqual(st.cdText, "23m");
-  assert.strictEqual(st.cdCaption, "until 7:00 AM");
+  assert.strictEqual(st.cdCaption, "until 7:15 AM");
 });
 
 test("countdown rounds up: never shows 0 while still running", () => {
-  // 30 seconds before 07:00 must show 1m, not 0m
-  assert.strictEqual(computeDisplayState(at(6, 59, 30)).cdText, "1m");
+  // 30 seconds before 07:15 must show 1m, not 0m
+  assert.strictEqual(computeDisplayState(at(7, 14, 30)).cdText, "1m");
   // 30 seconds before 17:15 likewise
   assert.strictEqual(computeDisplayState(at(17, 14, 30)).cdText, "1m");
 });

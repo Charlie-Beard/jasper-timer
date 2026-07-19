@@ -12,10 +12,10 @@
   var SCHEDULE = {
     RED_FILL_START: 3 * 60,       // 03:00 — bar begins filling (clamped to 0% before)
     YELLOW_START:   6 * 60,       // 06:00 — RED becomes YELLOW
-    GREEN_START:    7 * 60,       // 07:00 — YELLOW becomes GREEN (weekdays)
+    GREEN_START:    7 * 60 + 15,  // 07:15 — YELLOW becomes GREEN (weekdays)
     FAMILY_START:   7 * 60 + 30,  // 07:30 — bar is replaced by the family illustration (weekdays)
-    // Sat/Sun sleep in: GREEN and FAMILY shift 30 minutes later. The other
-    // boundaries are the same every day.
+    // Sat/Sun sleep in: GREEN starts 15 minutes later and FAMILY 30 minutes
+    // later than on weekdays. The other boundaries are the same every day.
     WEEKEND_GREEN_START:  7 * 60 + 30, // 07:30 — YELLOW becomes GREEN (Sat/Sun)
     WEEKEND_FAMILY_START: 8 * 60,      // 08:00 — family illustration (Sat/Sun)
     DRAIN_START:    16 * 60 + 15, // 16:15 — full BLUE bar appears and starts draining
@@ -42,7 +42,7 @@
   }
 
   // Clock label for a schedule boundary given in minutes since midnight,
-  // e.g. minutesToClockLabel(SCHEDULE.GREEN_START) -> "7:00 AM". Countdown
+  // e.g. minutesToClockLabel(SCHEDULE.GREEN_START) -> "7:15 AM". Countdown
   // captions are derived from the constants so they can never go stale.
   function minutesToClockLabel(mins) {
     return formatClock(Math.floor(mins / 60), mins % 60);

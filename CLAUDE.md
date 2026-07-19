@@ -29,7 +29,7 @@ the code map and the working rules.
 - **Change the schedule** (e.g. move wake-up time): edit the `SCHEDULE`
   constants at the top of `schedule.js`, update the table in
   `requirements.md` §2, update any test expectations, run the tests, push to
-  `main`. Countdown captions ("until 7:00 AM") are derived from the constants
+  `main`. Countdown captions ("until 7:15 AM") are derived from the constants
   automatically — do not hardcode times in strings.
 - **Change artwork**: the scenes are inline SVGs in `index.html`; their
   show/hide rules are in `styles.css` under the `data-phase` selectors.

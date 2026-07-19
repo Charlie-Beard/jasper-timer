@@ -16,8 +16,9 @@ simplicity over flexibility.
 The app has no persisted state and no daily "reset" step. Every phase is derived purely
 from the device's current local wall-clock time, recomputed continuously. The schedule
 is the same every day except for one weekend difference: on Saturday and Sunday the
-GREEN wake-up boundary (and the FAMILY boundary that follows it) shifts 30 minutes
-later, so GREEN starts at 07:30 instead of 07:00. Weekends also add a visual
+GREEN wake-up boundary (and the FAMILY boundary that follows it) shifts later, so
+GREEN starts at 07:30 instead of 07:15 and FAMILY at 08:00 instead of 07:30.
+Weekends also add a visual
 difference: the daytime FAMILY scene gains a second "trip to the cinema" illustration
 (see the note below).
 
@@ -31,13 +32,14 @@ Weekdays (Mon–Fri):
 | Time of day     | Phase  | What's shown                                                        |
 |-----------------|--------|---------------------------------------------------------------------|
 | 00:00 – 05:59   | RED    | Red bar, proportional fill across 03:00→06:00, clamped to 0% before 03:00 |
-| 06:00 – 06:59   | YELLOW | Yellow bar, proportional fill across the 06:00→07:00 window          |
-| 07:00 – 07:29   | GREEN  | Full green bar — the "you can come out" signal                       |
+| 06:00 – 07:14   | YELLOW | Yellow bar, proportional fill across the 06:00→07:15 window          |
+| 07:15 – 07:29   | GREEN  | Full green bar — the "you can come out" signal                       |
 | 07:30 – 16:14   | FAMILY | Green state continues, shown as a daytime family illustration (bar hidden) |
 | 16:15 – 17:14   | BLUE   | Blue "wind-down" bar draining from full at 16:15 to empty at 17:15   |
 | 17:15 – 23:59   | LOCKED | Bedtime illustration (sleeping boy) on a calm twilight background    |
 
-Weekends (Sat–Sun) — GREEN/FAMILY shift 30 minutes later; everything else is identical:
+Weekends (Sat–Sun) — GREEN starts 15 minutes later and FAMILY 30 minutes later;
+everything else is identical:
 
 | Time of day     | Phase  | What's shown                                                        |
 |-----------------|--------|---------------------------------------------------------------------|
@@ -49,16 +51,16 @@ Notes:
 - Anything before 06:00 — including the middle of the night (e.g. 2am) — is RED. There
   is no separate "night" state; before 03:00 is visually identical to the rest of RED,
   just with the bar empty (0%).
-- GREEN/FAMILY is the "okay to leave your room" state for the day. Thirty minutes into
-  GREEN (07:30 weekdays, 08:00 weekends) the full green bar is swapped for the calm
-  daytime family illustration; the meaning is unchanged, it's just gentler to look at
-  for the many hours it's shown.
+- GREEN/FAMILY is the "okay to leave your room" state for the day. Part-way into
+  GREEN (07:30 weekdays — 15 minutes in; 08:00 weekends — 30 minutes in) the full
+  green bar is swapped for the calm daytime family illustration; the meaning is
+  unchanged, it's just gentler to look at for the many hours it's shown.
 - BLUE is a visual wind-down toward the evening: a full blue bar appears at 16:15 and
   drains to empty by 17:15, with a factual "Xm until 5:15 PM" countdown.
 - LOCKED corresponds to the device's own iOS Screen Time lock taking over at 17:15 (the
   app cannot lock the device itself — see Section 6). It shows a sleeping-boy bedtime
   scene until the clock rolls past midnight and the cycle returns to RED.
-- Countdown boundaries: RED/YELLOW count down to GREEN's start (07:00 on weekdays,
+- Countdown boundaries: RED/YELLOW count down to GREEN's start (07:15 on weekdays,
   07:30 on weekends, with the "until …" caption matching); BLUE counts down to 17:15.
   No countdown is shown during GREEN, FAMILY, or LOCKED.
 - **Weekend cinema scene:** on Saturday and Sunday (device local day of week), the FAMILY
@@ -95,7 +97,7 @@ companion `?weekend=1` / `?weekend=0` parameter forces the weekend variant (the
   room" or "you can come out now"). Color / scene is the status signal, never words.
 - **Numeric display required, alongside the bar:**
   - The current time (assume 12-hour format with AM/PM unless told otherwise).
-  - A neutral countdown readout of time remaining until GREEN starts (7:00 AM on
+  - A neutral countdown readout of time remaining until GREEN starts (7:15 AM on
     weekdays, 7:30 AM on weekends; e.g. "1h 12m" or "23 minutes"), showing 0 / not
     shown once GREEN.
   - These are factual/numeric only — not instructional phrasing.
@@ -113,7 +115,7 @@ companion `?weekend=1` / `?weekend=0` parameter forces the weekend variant (the
 - No buttons, no navigation, no user interaction beyond opening the app. It's a
   read-only display.
 - No settings screen and no in-app configuration. The schedule boundaries (3:00 / 6:00
-  and the 7:00 weekday / 7:30 weekend wake-up) are hardcoded constants in the source.
+  and the 7:15 weekday / 7:30 weekend wake-up) are hardcoded constants in the source.
   If they ever need to change, that will be done by editing and redeploying the app,
   not via an in-app control.
 
